@@ -1,0 +1,40 @@
+2,1,Profile A,3,
+
+1,0a,
+2,0a,
+7,AutoCAD - Left View,
+8,AutoCAD - Right View,
+11,Photoshop - Zoom,
+12,Photoshop - Pan,
+16,0a,
+19,0a,
+21,0a,
+23,0a,
+28,0a,
+29,0a,
+31,0a,
+32,0a,
+33,0a,
+34,0a,
+18,2
+24,5
+38,4
+
+1,Profile B, 0
+
+1,0s,
+2,0s,
+7,0s,
+8,0s,
+11,0d,
+12,0f,
+16,0g,
+19,0q,
+21,0e,
+23,0r,
+28,0d,
+29,0s,
+31,0f,
+32,0g,
+33,0a,
+34,0s,
