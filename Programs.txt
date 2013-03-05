@@ -1,0 +1,12 @@
+1
+Photoshop Pan
+Null
+Horizontal,Vertical
+Horizontal,Vertical
+Exists
+2
+Photoshop Zoom
+Null
+Exists
+Exists
+Null

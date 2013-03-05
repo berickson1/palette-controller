@@ -18,6 +18,7 @@ namespace WindowsFormsApplication2
         public const string TITLENAME = "Palette Controller";
         public int[] palette = new int[16];
         public int activeTab;
+        public string RxString;
 
         List<Profile> profileList = new List<Profile>();
 
@@ -33,6 +34,7 @@ namespace WindowsFormsApplication2
             InitializeComponent();
             tabControl1.Selecting += new TabControlCancelEventHandler(tabControl1_Selecting);
 
+            CreateDictionary("Programs.txt");
             InitializeConfiguration();
             //Calls for functions
         }
@@ -40,11 +42,14 @@ namespace WindowsFormsApplication2
         #region Threads
         private void Serial_Connection()
         {
+            serialPort1.PortName = "COM7";
+            serialPort1.BaudRate = 57600;
+            
             try
             {
                 while(true)
                 {
-                    //stuff
+                    serialPort1.Open();
                 }
 
             }
@@ -53,6 +58,17 @@ namespace WindowsFormsApplication2
             {
                 MessageBox.Show("Error: Serial communication cannot be established. Original error: " + ex.Message, TITLENAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            /*byte[] c = new byte[] {
+               0x01,
+               0x00,
+               0x00,
+               0x02,
+               0x37,
+               0x30,
+               0x04
+            };*/
+            //serialPort1.Write(c, 0, c.Length);
         }
         #endregion
 
@@ -102,6 +118,94 @@ namespace WindowsFormsApplication2
             }
 
             buildPalette(row, col, data, profileName, profileID);
+        }
+
+        private Dictionary <string, AProgram> CreateDictionary(string fileName)
+        {
+            int tactionID;
+            string tgeneric;
+            List<string> tempbuttonActions = new List<string>();
+            List<string> tempknobActions = new List<string>();
+            List<string> tempsliderActions = new List<string>();
+            List<string> tempjoystickActions = new List<string>();
+
+            string[] tempArray;
+
+            //Create dictionary
+            var programInfo = new Dictionary<string, AProgram> { };
+
+            //Read data from file
+            string file = ReadFile(fileName);
+
+            //Process data from file
+            char[] delimiters = new char[] { '\r' };
+            char[] delimiters2 = new char[] { ',', '\n' };
+            string[] data = file.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < (data.Count() / 6); i++)
+            {
+                int n = i * 6;
+
+                //clear all Lists
+                tempbuttonActions.Clear();
+                tempknobActions.Clear();
+                tempsliderActions.Clear();
+                tempjoystickActions.Clear();
+
+                //read data into respective temporary variables
+                tactionID = Convert.ToInt32(data[n]);
+                tempArray = data[n + 1].Split(delimiters2, StringSplitOptions.RemoveEmptyEntries);
+                tgeneric = tempArray[0];
+                //button actions
+                tempArray = data[n + 2].Split(delimiters2, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string item in tempArray)
+                {
+                    if (item == "Null")
+                        break;
+                    else if (item == "Exists")
+                        tempbuttonActions.Add("");
+                    else
+                        tempbuttonActions.Add(item);
+                }
+                //knob actions
+                tempArray = data[n + 3].Split(delimiters2, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string item in tempArray)
+                {
+                    if (item == "Null")
+                        break;
+                    else if (item == "Exists")
+                        tempknobActions.Add("");
+                    else
+                        tempknobActions.Add(item);
+                }
+                //slider actions
+                tempArray = data[n + 4].Split(delimiters2, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string item in tempArray)
+                {
+                    if (item == "Null")
+                        break;
+                    else if (item == "Exists")
+                        tempsliderActions.Add("");
+                    else
+                        tempsliderActions.Add(item);
+                }
+                //joystick actions
+                tempArray = data[n + 5].Split(delimiters2, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string item in tempArray)
+                {
+                    if (item == "Null")
+                        break;
+                    else if (item == "Exists")
+                        tempjoystickActions.Add("");
+                    else
+                        tempjoystickActions.Add(item);
+                }
+
+                //add to dictionary;
+                programInfo.Add(tactionID.ToString(), new AProgram() { actionID = tactionID, generic = tgeneric, buttonActions = tempbuttonActions, knobActions = tempknobActions, sliderActions = tempsliderActions, joystickActions = tempjoystickActions });
+            }
+
+            return programInfo;
+            //txtData.AppendText(programInfo.FirstOrDefault(x => x.Key == "1").Value.actionID.ToString());
         }
 
         private void moduleChanged(int ID, int location)
@@ -224,22 +328,22 @@ namespace WindowsFormsApplication2
             if (palette[n] < 10)
             {
                 btnArray[n].BackgroundImageLayout = ImageLayout.Stretch;
-                btnArray[n].BackgroundImage = Image.FromFile(@"D:\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\button.jpg");
+                btnArray[n].BackgroundImage = Image.FromFile(@"D:\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\button.png");
             }
             else if (palette[n] < 20)
             {
                 btnArray[n].BackgroundImageLayout = ImageLayout.Stretch;
-                btnArray[n].BackgroundImage = Image.FromFile(@"D:\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\encoder.jpg");
+                btnArray[n].BackgroundImage = Image.FromFile(@"D:\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\knob.png");
             }
             else if (palette[n] < 30)
             {
                 btnArray[n].BackgroundImageLayout = ImageLayout.Stretch;
-                btnArray[n].BackgroundImage = Image.FromFile(@"D:\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\jog.jpg");
+                btnArray[n].BackgroundImage = Image.FromFile(@"D:\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\joystick.png");
             }
             else if (palette[n] < 40)
             {
                 btnArray[n].BackgroundImageLayout = ImageLayout.Stretch;
-                btnArray[n].BackgroundImage = Image.FromFile(@"D:\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\joy.jpg");
+                btnArray[n].BackgroundImage = null;
             }
             else
             {
@@ -275,6 +379,18 @@ namespace WindowsFormsApplication2
         {
             TabPage current = (sender as TabControl).SelectedTab;
             activeTab = current.TabIndex;
+        }
+
+        private void serialPort1_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
+        {
+            RxString = serialPort1.ReadExisting();
+            //this.Invoke(new EventHandler(DisplayText));
+            //textBox1.AppendText(RxString);
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (serialPort1.IsOpen) serialPort1.Close();
         }
         #endregion
 

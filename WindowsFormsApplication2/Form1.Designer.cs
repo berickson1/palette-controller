@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.pnlButtons = new System.Windows.Forms.Panel();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.pnlInfo = new System.Windows.Forms.Panel();
@@ -35,6 +36,7 @@
             this.lblInfoDescription = new System.Windows.Forms.Label();
             this.lblInfoName = new System.Windows.Forms.Label();
             this.txtData = new System.Windows.Forms.TextBox();
+            this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
             this.pnlButtons.SuspendLayout();
             this.pnlInfo.SuspendLayout();
             this.SuspendLayout();
@@ -44,7 +46,7 @@
             this.pnlButtons.Controls.Add(this.tabControl1);
             this.pnlButtons.Location = new System.Drawing.Point(12, 12);
             this.pnlButtons.Name = "pnlButtons";
-            this.pnlButtons.Size = new System.Drawing.Size(520, 650);
+            this.pnlButtons.Size = new System.Drawing.Size(520, 623);
             this.pnlButtons.TabIndex = 5;
             // 
             // tabControl1
@@ -63,7 +65,7 @@
             this.pnlInfo.Controls.Add(this.txtData);
             this.pnlInfo.Location = new System.Drawing.Point(543, 12);
             this.pnlInfo.Name = "pnlInfo";
-            this.pnlInfo.Size = new System.Drawing.Size(235, 650);
+            this.pnlInfo.Size = new System.Drawing.Size(235, 623);
             this.pnlInfo.TabIndex = 6;
             // 
             // btnTest
@@ -108,7 +110,7 @@
             // 
             // frmPalette
             // 
-            this.ClientSize = new System.Drawing.Size(799, 682);
+            this.ClientSize = new System.Drawing.Size(799, 640);
             this.Controls.Add(this.pnlInfo);
             this.Controls.Add(this.pnlButtons);
             this.Name = "frmPalette";
@@ -129,6 +131,7 @@
         private System.Windows.Forms.Label lblInfoDescription;
         private System.Windows.Forms.Button btnTest;
         private System.Windows.Forms.TabControl tabControl1;
+        private System.IO.Ports.SerialPort serialPort1;
 
     }
 }
