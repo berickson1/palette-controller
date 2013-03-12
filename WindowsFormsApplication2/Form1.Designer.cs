@@ -32,11 +32,12 @@
             this.pnlButtons = new System.Windows.Forms.Panel();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.pnlInfo = new System.Windows.Forms.Panel();
-            this.btnTest = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.lblInfoDescription = new System.Windows.Forms.Label();
             this.lblInfoName = new System.Windows.Forms.Label();
             this.txtData = new System.Windows.Forms.TextBox();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
+            this.button2 = new System.Windows.Forms.Button();
             this.pnlButtons.SuspendLayout();
             this.pnlInfo.SuspendLayout();
             this.SuspendLayout();
@@ -59,7 +60,8 @@
             // 
             // pnlInfo
             // 
-            this.pnlInfo.Controls.Add(this.btnTest);
+            this.pnlInfo.Controls.Add(this.button2);
+            this.pnlInfo.Controls.Add(this.button1);
             this.pnlInfo.Controls.Add(this.lblInfoDescription);
             this.pnlInfo.Controls.Add(this.lblInfoName);
             this.pnlInfo.Controls.Add(this.txtData);
@@ -68,15 +70,15 @@
             this.pnlInfo.Size = new System.Drawing.Size(235, 623);
             this.pnlInfo.TabIndex = 6;
             // 
-            // btnTest
+            // button1
             // 
-            this.btnTest.Location = new System.Drawing.Point(19, 578);
-            this.btnTest.Name = "btnTest";
-            this.btnTest.Size = new System.Drawing.Size(186, 31);
-            this.btnTest.TabIndex = 7;
-            this.btnTest.Text = "Testing";
-            this.btnTest.UseVisualStyleBackColor = true;
-            this.btnTest.Click += new System.EventHandler(this.btnTest_Click);
+            this.button1.Location = new System.Drawing.Point(19, 282);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(186, 23);
+            this.button1.TabIndex = 11;
+            this.button1.Text = "Test Serial";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // lblInfoDescription
             // 
@@ -108,8 +110,19 @@
             this.txtData.Size = new System.Drawing.Size(186, 225);
             this.txtData.TabIndex = 4;
             // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(19, 253);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(186, 23);
+            this.button2.TabIndex = 12;
+            this.button2.Text = "Test Remove Module";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // frmPalette
             // 
+            this.BackColor = System.Drawing.Color.Gray;
             this.ClientSize = new System.Drawing.Size(799, 640);
             this.Controls.Add(this.pnlInfo);
             this.Controls.Add(this.pnlButtons);
@@ -129,9 +142,10 @@
         private System.Windows.Forms.TextBox txtData;
         private System.Windows.Forms.Label lblInfoName;
         private System.Windows.Forms.Label lblInfoDescription;
-        private System.Windows.Forms.Button btnTest;
         private System.Windows.Forms.TabControl tabControl1;
         private System.IO.Ports.SerialPort serialPort1;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button button2;
 
     }
 }

@@ -16,17 +16,19 @@ namespace WindowsFormsApplication2
     {
         #region Class Variables
         public const string TITLENAME = "Palette Controller";
-        public int[] palette = new int[16];
-        public int activeTab;
-        public string RxString;
+        public int[] palette = new int[16];//array of module IDs
+        public int activeProfile;//remembers the active profile
+        public int activeProgram;//remembers the active program
+        public string RxString; //used for serial communication
 
-        List<Profile> profileList = new List<Profile>();
+        List<Profile> profileList = new List<Profile>();//lists all of the existing profiles
+        List<List<int>> genericsList = new List<List<int>>();//list of profiles; list of locations which contain modules programmed to be generics
 
-        System.Windows.Forms.Button[] btnArray = new System.Windows.Forms.Button[16];
-        System.Windows.Forms.Label[] lblArray = new System.Windows.Forms.Label[16];
-        System.Windows.Forms.TabPage[] tabArray = new System.Windows.Forms.TabPage[25];//TODO: this should be a list
+        System.Windows.Forms.Button[] btnArray = new System.Windows.Forms.Button[16];//used to draw buttons
+        System.Windows.Forms.Label[] lblArray = new System.Windows.Forms.Label[16];//used to draw labels
 
-        //initialize global variables
+        //TODO: this should be a list
+        System.Windows.Forms.TabPage[] tabArray = new System.Windows.Forms.TabPage[25];//used to draw tabs for profiles
         #endregion
 
         public frmPalette()
@@ -67,8 +69,8 @@ namespace WindowsFormsApplication2
                0x37,
                0x30,
                0x04
-            };*/
-            //serialPort1.Write(c, 0, c.Length);
+            };
+            serialPort1.Write(c, 0, c.Length);*/
         }
         #endregion
 
@@ -96,9 +98,13 @@ namespace WindowsFormsApplication2
             string moduleAc;
             List<Module> moduleList = new List<Module>();
 
+            List<int> tempGenericsList = new List<int>(); 
+
             int m = 0;
             while (m < numProfiles)
             {
+                tempGenericsList.Clear();
+                moduleList.Clear(); 
                 profileID.Add(Convert.ToInt32(data2[index++]));//grabs profile ID
                 profileName.Add(data2[index++]);//grabs profile name
 
@@ -108,108 +114,116 @@ namespace WindowsFormsApplication2
                     moduleID = Convert.ToInt32(data2[index++]);//grabs module ID
                     moduleAc = data2[index++];//grabs action ID
                     moduleList.Add(new Module(moduleID, moduleAc));
+
+                    if (i < size && moduleID > 0 && moduleID < 32)//find generics in the first 16 modules
+                    {
+                        tempGenericsList.Add(i);
+                    }
                 }
 
                 List<Module> tempList = new List<Module>(moduleList);//copy the list so that when I clear moduleList, the profileList.moduleList doesn't clear too
                 profileList.Add(new Profile(profileID[m], profileName[m], tempList));
 
-                moduleList.Clear(); 
+                List<int> tempList2 = new List<int>(tempGenericsList);
+                genericsList.Add(tempList2);
                 m++;
             }
 
             buildPalette(row, col, data, profileName, profileID);
         }
 
-        private Dictionary <string, AProgram> CreateDictionary(string fileName)
+        private Dictionary <string, ActionInfo> CreateDictionary(string fileName)//TODO: implement generics
         {
-            int tactionID;
-            string tgeneric;
-            List<string> tempbuttonActions = new List<string>();
-            List<string> tempknobActions = new List<string>();
-            List<string> tempsliderActions = new List<string>();
-            List<string> tempjoystickActions = new List<string>();
-
+            int tempActionID;
+            string tempName, temp;
+            int tempProgramID = 0;
+            List<string> tempActions = new List<string>();
+            Dictionary<int, List<string>> GenericList = new Dictionary<int, List<string>>();
             string[] tempArray;
 
             //Create dictionary
-            var programInfo = new Dictionary<string, AProgram> { };
+            var programInfo = new Dictionary<string, ActionInfo> { };
 
             //Read data from file
             string file = ReadFile(fileName);
 
             //Process data from file
-            char[] delimiters = new char[] { '\r' };
-            char[] delimiters2 = new char[] { ',', '\n' };
+            char[] delimiters = new char[] { '\r','\n' };
+            char[] delimiters2 = new char[] { ',' };
             string[] data = file.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < (data.Count() / 6); i++)
+            int i = 0;
+            while (i < data.Count())
             {
-                int n = i * 6;
-
                 //clear all Lists
-                tempbuttonActions.Clear();
-                tempknobActions.Clear();
-                tempsliderActions.Clear();
-                tempjoystickActions.Clear();
+                tempActions.Clear();
 
                 //read data into respective temporary variables
-                tactionID = Convert.ToInt32(data[n]);
-                tempArray = data[n + 1].Split(delimiters2, StringSplitOptions.RemoveEmptyEntries);
-                tgeneric = tempArray[0];
-                //button actions
-                tempArray = data[n + 2].Split(delimiters2, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string item in tempArray)
-                {
-                    if (item == "Null")
-                        break;
-                    else if (item == "Exists")
-                        tempbuttonActions.Add("");
-                    else
-                        tempbuttonActions.Add(item);
-                }
-                //knob actions
-                tempArray = data[n + 3].Split(delimiters2, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string item in tempArray)
-                {
-                    if (item == "Null")
-                        break;
-                    else if (item == "Exists")
-                        tempknobActions.Add("");
-                    else
-                        tempknobActions.Add(item);
-                }
-                //slider actions
-                tempArray = data[n + 4].Split(delimiters2, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string item in tempArray)
-                {
-                    if (item == "Null")
-                        break;
-                    else if (item == "Exists")
-                        tempsliderActions.Add("");
-                    else
-                        tempsliderActions.Add(item);
-                }
-                //joystick actions
-                tempArray = data[n + 5].Split(delimiters2, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string item in tempArray)
-                {
-                    if (item == "Null")
-                        break;
-                    else if (item == "Exists")
-                        tempjoystickActions.Add("");
-                    else
-                        tempjoystickActions.Add(item);
-                }
+                tempActionID = Convert.ToInt32(data[i++]);
+                tempArray = data[i++].Split(delimiters2, StringSplitOptions.RemoveEmptyEntries);
+                tempName = tempArray[0];
 
-                //add to dictionary;
-                programInfo.Add(tactionID.ToString(), new AProgram() { actionID = tactionID, generic = tgeneric, buttonActions = tempbuttonActions, knobActions = tempknobActions, sliderActions = tempsliderActions, joystickActions = tempjoystickActions });
+                //actions
+                if (tempActionID == 0)//custom
+                {
+                    tempProgramID = Convert.ToInt32(data[i++]);
+                    tempArray = data[i++].Split(delimiters2, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string item in tempArray)
+                    {
+                        tempActions.Add(item);
+                    }
+                    //add to dictionary;
+                    programInfo.Add(tempActionID.ToString(), new ActionInfo(tempActionID, tempName, tempProgramID, tempActions));
+                }
+                else if (tempActionID <= 31)//generic
+                {
+                    while (true)
+                    {
+                        tempActions.Clear();
+                        temp = data[i++];
+                        if (temp == "END")
+                        {
+                            break;
+                        }
+                        tempProgramID = Convert.ToInt32(temp);
+                        tempArray = data[i++].Split(delimiters2, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (string item in tempArray)
+                        {
+                            tempActions.Add(item);
+                        }
+                        GenericList.Add(tempProgramID, tempActions);
+                    }
+                    //add to dictionary;
+                    programInfo.Add(tempActionID.ToString(), new ActionInfo(tempActionID, tempName, GenericList));
+                    GenericList.Clear();
+                }
+                else//regular
+                {
+                    tempProgramID = Convert.ToInt32(data[i++]);
+                    tempArray = data[i++].Split(delimiters2, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string item in tempArray)
+                    {
+                        tempActions.Add(item);
+                    }
+                    //add to dictionary;
+                    programInfo.Add(tempActionID.ToString(), new ActionInfo(tempActionID, tempName, tempProgramID, tempActions));
+                }
             }
 
             return programInfo;
             //txtData.AppendText(programInfo.FirstOrDefault(x => x.Key == "1").Value.actionID.ToString());
         }
 
-        private void moduleChanged(int ID, int location)
+        private void moduleChanged(int ID, int location)//location & new ID are provided
         {
+            //removes all copies of previous module from list of generics
+            if (palette[location] > 0 && palette[location] < 32)
+            {
+                for (int i = 0; i < profileList.Count; i++)
+                {
+                    genericsList[i].RemoveAll(x => x == location);
+                }
+            }
+
             //make change in storage
             palette[location] = ID;
 
@@ -218,22 +232,22 @@ namespace WindowsFormsApplication2
             btnArray[location].Tag = location;
 
             //transfer old module object out of first 16
-            Module tempModule = profileList[activeTab].moduleList[location];
-            profileList[activeTab].moduleList.Add(tempModule);//transfer to new location
+            Module tempModule = profileList[activeProfile].moduleList[location];
+            profileList[activeProfile].moduleList.Add(tempModule);//transfer to new location
 
             //create new module object in proper location
-            int index = profileList[activeTab].moduleList.FindIndex(item => item.ID == ID);
-            if (index >= 0)
+            int index = profileList[activeProfile].moduleList.FindIndex(item => item.ID == ID);
+            if (index >= 0)//use existing info for module
             {
-                profileList[activeTab].moduleList[location] = new Module(ID, profileList[activeTab].moduleList[index].actions);//transfer new info to 
+                profileList[activeProfile].moduleList[location] = new Module(ID, profileList[activeProfile].moduleList[index].actions);//transfer new info to 
             }
-            else
+            else//no existing info was found, create new empty module
             {
-                profileList[activeTab].moduleList[location] = new Module(ID, "");
+                profileList[activeProfile].moduleList[location] = new Module(ID, "");
             }
 
-            lblArray[location].Text = profileList[activeTab].moduleList[location].actions;
-            lblArray[location].Tag = profileList[activeTab].moduleList[location].actionID;
+            lblArray[location].Text = profileList[activeProfile].moduleList[location].actions;
+            lblArray[location].Tag = profileList[activeProfile].moduleList[location].actionID;
         }
         #endregion
 
@@ -261,12 +275,14 @@ namespace WindowsFormsApplication2
                 for (int j = 0; j < size; j++)
                 {
                     btnArray[j] = new System.Windows.Forms.Button();
+                    btnArray[j].FlatStyle = FlatStyle.Flat;
+                    btnArray[j].FlatAppearance.BorderSize = 0;
                     lblArray[j] = new System.Windows.Forms.Label();
                     lblArray[j].TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
                 }
 
-                int n = 0;
                 //Create buttons and label for Palette
+                int n = 0;
                 while (n < size)
                 {
                     palette[n] = Convert.ToInt32(data[n + 2]);
@@ -298,28 +314,27 @@ namespace WindowsFormsApplication2
                     btnArray[n].Left = xPos;
                     btnArray[n].Top = yPos;
                     // Add buttons to a Panel: 
-                    tabArray[activeTab].Controls.Add(btnArray[n]); // Let panel hold the Buttons 
+                    tabArray[activeProfile].Controls.Add(btnArray[n]); // Let panel hold the Buttons 
 
                     // Location of label: 
                     lblArray[n].Left = xPos;
                     lblArray[n].Top = yPos + 100;
                     // Add label to a Panel: 
-                    tabArray[activeTab].Controls.Add(lblArray[n]); // Let panel hold the Labels
+                    tabArray[activeProfile].Controls.Add(lblArray[n]); // Let panel hold the Labels
 
                     xPos = xPos + btnArray[n].Width + 20; // Left of next button 
 
                     //Writes module type name to each button in array
                     changeType(n);
-                    lblArray[n].Text = profileList[activeTab].moduleList[n].actions;
+                    lblArray[n].Text = profileList[activeProfile].moduleList[n].actions;
 
                     // the Event of click Button 
                     btnArray[n].Click += new System.EventHandler(ClickButton);
                     n++;
                 }
-                //tabControl.SelectedIndexChanged += new EventHandler(tabControl1_SelectedIndexChanged);
-                activeTab++;
+                activeProfile++;
             }
-            activeTab = 0;
+            activeProfile = 0;
             tabControl1.SelectedTab = tabArray[0];
         }
 
@@ -328,17 +343,17 @@ namespace WindowsFormsApplication2
             if (palette[n] < 10)
             {
                 btnArray[n].BackgroundImageLayout = ImageLayout.Stretch;
-                btnArray[n].BackgroundImage = Image.FromFile(@"D:\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\button.png");
+                btnArray[n].BackgroundImage = Image.FromFile(@"C:\Users\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\button.png");
             }
             else if (palette[n] < 20)
             {
                 btnArray[n].BackgroundImageLayout = ImageLayout.Stretch;
-                btnArray[n].BackgroundImage = Image.FromFile(@"D:\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\knob.png");
+                btnArray[n].BackgroundImage = Image.FromFile(@"C:\Users\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\knob.png");
             }
             else if (palette[n] < 30)
             {
                 btnArray[n].BackgroundImageLayout = ImageLayout.Stretch;
-                btnArray[n].BackgroundImage = Image.FromFile(@"D:\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\joystick.png");
+                btnArray[n].BackgroundImage = Image.FromFile(@"C:\Users\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\joystick.png");
             }
             else if (palette[n] < 40)
             {
@@ -358,34 +373,54 @@ namespace WindowsFormsApplication2
         {
             Button btn = (Button)sender;
             int num = Convert.ToInt32(btn.Tag);//gets the module ID for each module on the screen
-            lblInfoName.Text = profileList[activeTab].moduleList[num].type;
-            lblInfoDescription.Text = profileList[activeTab].moduleList[num].actions;
+            lblInfoName.Text = profileList[activeProfile].moduleList[num].type;
+            lblInfoDescription.Text = profileList[activeProfile].moduleList[num].actions;
+        }
+
+        private void SendSerial(string text)
+        {
+            byte[] bytes = GetBytes(text);
+            serialPort1.Write(bytes, 0, bytes.Length);
+        }
+
+        private void SendSerial(byte[] bytes)
+        {
+            serialPort1.Write(bytes, 0, bytes.Length);
+        }
+
+        static byte[] GetBytes(string str)
+        {
+            byte[] bytes = new byte[str.Length * sizeof(char)];
+            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            return bytes;
+        }
+
+        static string GetString(byte[] bytes)
+        {
+            char[] chars = new char[bytes.Length / sizeof(char)];
+            System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
+            return new string(chars);
         }
 
         private string ReadFile(string name)
         {
-            string something = System.IO.File.ReadAllText(@"D:\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\" + name);
+            string something = System.IO.File.ReadAllText(@"C:\Users\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\" + name);
             return something;
         }
         #endregion
 
         #region Control Event Code
-        private void btnTest_Click(Object sender, EventArgs e)
-        {
-            moduleChanged(38, 0);
-        }
-
         void tabControl1_Selecting(object sender, TabControlCancelEventArgs e)
         {
             TabPage current = (sender as TabControl).SelectedTab;
-            activeTab = current.TabIndex;
+            activeProfile = current.TabIndex;
         }
 
         private void serialPort1_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
             RxString = serialPort1.ReadExisting();
             //this.Invoke(new EventHandler(DisplayText));
-            //textBox1.AppendText(RxString);
+            txtData.AppendText(RxString);
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -393,6 +428,19 @@ namespace WindowsFormsApplication2
             if (serialPort1.IsOpen) serialPort1.Close();
         }
         #endregion
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            byte[] data = new byte[] {
+               0x50
+            };
+            SendSerial(data);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            moduleChanged(18, 0);
+        }
 
     }//public partial class namespace
 } //namespace
