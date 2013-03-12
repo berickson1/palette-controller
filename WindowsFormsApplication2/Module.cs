@@ -25,20 +25,17 @@ namespace WindowsFormsApplication2
             }
             else if (ID < 20)
             {
-                type = "Encoder";
+                type = "Knob";
             }
             else if (ID < 30)
             {
-                type = "Pot";
-            }
-            else if (ID < 40)
-            {
-                type = "Joystick";
+                type = "Slider";
             }
         }
-        public Module(int id, string a)
+        public Module(int id, int aid, string a)
         {
             ID = id;
+            actionID = aid;
             actions = a;
 
             if (ID < 10)
@@ -47,16 +44,13 @@ namespace WindowsFormsApplication2
             }
             else if (ID < 20)
             {
-                type = "Encoder";
+                type = "Knob";
             }
             else if (ID < 30)
             {
-                type = "Pot";
+                type = "Slider";
             }
-            else if (ID < 40)
-            {
-                type = "Joystick";
-            }
+
         }
         //other functions
     }

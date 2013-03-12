@@ -20,6 +20,7 @@ namespace WindowsFormsApplication2
         public int activeProfile;//remembers the active profile
         public int activeProgram;//remembers the active program
         public string RxString; //used for serial communication
+        public int row, col = 0;
 
         List<Profile> profileList = new List<Profile>();//lists all of the existing profiles
         List<List<int>> genericsList = new List<List<int>>();//list of profiles; list of locations which contain modules programmed to be generics
@@ -77,59 +78,62 @@ namespace WindowsFormsApplication2
         #region Functions
         private void InitializeConfiguration()
         {
+            //file containing location and ID of modules
+            #region Read File 1
             string file = ReadFile("Config1.txt");//read current location and IDs
             
             //break data down into useful chunks
             char[] delimiters = new char[] { ',', '\r', '\n' };
             string[] data = file.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
-            int row = Convert.ToInt32(data[0]);
-            int col = Convert.ToInt32(data[1]);
+            row = Convert.ToInt32(data[0]);
+            col = Convert.ToInt32(data[1]);
             int size = row * col;
 
+            //build the palette array
+            for (int i = 0; i < size; i++)
+            {
+                palette[i] = Convert.ToInt32(data[i + 2]);
+            }
+            #endregion
+
+            //file containing information about module mappings
+            #region Read File 2
             string file2 = ReadFile("Config2.txt"); //read current profile(s) and mappings
             
             //break data down into useful chunks
-            string[] data2 = file2.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
-            int numProfiles = Convert.ToInt32(data2[0]);
+            data = file2.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+            int numProfiles = Convert.ToInt32(data[0]);
 
-            int index = 1, moduleID, numExtraModules;
-            List<int> profileID = new List<int>(); 
-            List<string> profileName = new List<string>();
-            string moduleAc;
+            //initialize vars needed for reading
+            int index = 1, profileID, moduleID, actionID, numModules;
+            string profileName, moduleAction;
             List<Module> moduleList = new List<Module>();
 
-            List<int> tempGenericsList = new List<int>(); 
-
             int m = 0;
-            while (m < numProfiles)
+            while (m < numProfiles)//for each profile
             {
-                tempGenericsList.Clear();
                 moduleList.Clear(); 
-                profileID.Add(Convert.ToInt32(data2[index++]));//grabs profile ID
-                profileName.Add(data2[index++]);//grabs profile name
 
-                numExtraModules = Convert.ToInt32(data2[index++]);
-                for (int i = 0; i<(size+numExtraModules);i++)
+                profileID = Convert.ToInt32(data[index++]);//grabs profile ID
+                profileName = data[index++];//grabs profile name
+
+                numModules = Convert.ToInt32(data[index++]);
+                for (int i = 0; i<numModules;i++)
                 {
-                    moduleID = Convert.ToInt32(data2[index++]);//grabs module ID
-                    moduleAc = data2[index++];//grabs action ID
-                    moduleList.Add(new Module(moduleID, moduleAc));
-
-                    if (i < size && moduleID > 0 && moduleID < 32)//find generics in the first 16 modules
-                    {
-                        tempGenericsList.Add(i);
-                    }
+                    moduleID = Convert.ToInt32(data[index++]);//grabs module ID
+                    actionID = Convert.ToInt32(data[index++]);//grabs action ID
+                    moduleAction = data[index++];//grabs action string
+                    moduleList.Add(new Module(moduleID, actionID, moduleAction));
                 }
 
-                List<Module> tempList = new List<Module>(moduleList);//copy the list so that when I clear moduleList, the profileList.moduleList doesn't clear too
-                profileList.Add(new Profile(profileID[m], profileName[m], tempList));
+                List<Module> tempCopyList = new List<Module>(moduleList);//copy the list so that when I clear moduleList, the profileList.moduleList doesn't clear too
+                profileList.Add(new Profile(profileID, profileName, tempCopyList));
 
-                List<int> tempList2 = new List<int>(tempGenericsList);
-                genericsList.Add(tempList2);
                 m++;
             }
+            #endregion
 
-            buildPalette(row, col, data, profileName, profileID);
+            buildPalette();
         }
 
         private Dictionary <string, ActionInfo> CreateDictionary(string fileName)//TODO: implement generics
@@ -213,62 +217,62 @@ namespace WindowsFormsApplication2
             //txtData.AppendText(programInfo.FirstOrDefault(x => x.Key == "1").Value.actionID.ToString());
         }
 
-        private void moduleChanged(int ID, int location)//location & new ID are provided
+        private void moduleChanged(int location, int ID)//location & new ID are provided
         {
             //removes all copies of previous module from list of generics
-            if (palette[location] > 0 && palette[location] < 32)
+            /*if (palette[location] > 0 && palette[location] < 32)
             {
                 for (int i = 0; i < profileList.Count; i++)
                 {
                     genericsList[i].RemoveAll(x => x == location);
                 }
-            }
+            }*/
 
-            //make change in storage
+            //make change in palette array
             palette[location] = ID;
 
-            //make change on display
-            changeType(location);
-            btnArray[location].Tag = location;
-
-            //transfer old module object out of first 16
-            Module tempModule = profileList[activeProfile].moduleList[location];
-            profileList[activeProfile].moduleList.Add(tempModule);//transfer to new location
-
-            //create new module object in proper location
-            int index = profileList[activeProfile].moduleList.FindIndex(item => item.ID == ID);
-            if (index >= 0)//use existing info for module
+            for (int i = 0; i < profileList.Count; i++)//for each profile in profileList
             {
-                profileList[activeProfile].moduleList[location] = new Module(ID, profileList[activeProfile].moduleList[index].actions);//transfer new info to 
-            }
-            else//no existing info was found, create new empty module
-            {
-                profileList[activeProfile].moduleList[location] = new Module(ID, "");
+                //transfer old module object out of first 16
+                Module tempModule = profileList[i].moduleList[location];
+                profileList[i].moduleList.Add(tempModule);//transfer to new location
+
+                //replace old module with new module
+                int index = profileList[i].moduleList.FindIndex(item => item.ID == ID);
+                if (index >= 0)//use existing info for module
+                {
+                    profileList[i].moduleList[location] = new Module(ID, profileList[i].moduleList[index].actionID, profileList[i].moduleList[index].actions);//transfer new info to 
+                }
+                else//no existing info was found, create new empty module
+                {
+                    profileList[i].moduleList[location] = new Module(ID, 0, "");
+                }
             }
 
-            lblArray[location].Text = profileList[activeProfile].moduleList[location].actions;
-            lblArray[location].Tag = profileList[activeProfile].moduleList[location].actionID;
+            buildPalette();
         }
         #endregion
 
         #region Helper Functions
-        private void buildPalette(int row, int col, string[] data, List<string> profileName, List<int> profileID)
+        private void buildPalette()
         {
             int size = row * col;
 
-            //PALETTE
-            tabControl1.TabPages.Clear();
-            for (int i = 0; i < profileList.Count; i++)
+            tabControl1.TabPages.Clear();//clear the tabs completely.
+            List<int> tempGenericsList = new List<int>(); 
+
+            for (int i = 0; i < profileList.Count; i++)//for each profile in profileList
             {
+                tempGenericsList.Clear();
+
                 //create tab for profile
-                string tabTitle = "Profile " + (i+1).ToString();
+                string tabTitle = profileList[i].name;
                 tabArray[i] = new System.Windows.Forms.TabPage(tabTitle);
                 tabControl1.TabPages.Add(tabArray[i]);
-                //save necessary info
-                tabArray[i].Text = profileName[i];
-                tabArray[i].Tag = profileID[i].ToString();
+                tabArray[i].Tag = profileList[i].ID.ToString();//save profileID in the tab's tag
 
-                //create array of buttons & labels for each profile
+                //Create imaginary array of buttons & labels for each profile
+                #region Create Array of Buttons & Labels
                 int xPos = 20;
                 int yPos = 20;
 
@@ -280,15 +284,12 @@ namespace WindowsFormsApplication2
                     lblArray[j] = new System.Windows.Forms.Label();
                     lblArray[j].TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
                 }
+                #endregion
 
-                //Create buttons and label for Palette
-                int n = 0;
-                while (n < size)
+                //Add information to buttons & labels
+                #region Draw Buttons & Labels
+                for (int n = 0; n < palette.Count(); n++ )//for each module in the palette
                 {
-                    palette[n] = Convert.ToInt32(data[n + 2]);
-                    btnArray[n].Tag = n;
-                    lblArray[n].Text = data[n + 2];
-
                     btnArray[n].Width = 100; // Width of button 
                     btnArray[n].Height = 100; // Height of button 
                     lblArray[n].Width = 100;
@@ -324,21 +325,35 @@ namespace WindowsFormsApplication2
 
                     xPos = xPos + btnArray[n].Width + 20; // Left of next button 
 
-                    //Writes module type name to each button in array
-                    changeType(n);
-                    lblArray[n].Text = profileList[activeProfile].moduleList[n].actions;
+                    //Add information to buttons & labels
+                    #region Add Info to Buttons & Labels
+                    assignModuleImage(n);
+                    btnArray[n].Tag = n;//add location to each button's tag
+                    lblArray[n].Text = profileList[activeProfile].moduleList[n].actions;//writes action as text of label
+                    btnArray[n].Click += new System.EventHandler(ClickButton);// the Event of click Button 
+                    #endregion
 
-                    // the Event of click Button 
-                    btnArray[n].Click += new System.EventHandler(ClickButton);
-                    n++;
+                    #region Create List of Generics
+                    if (profileList[i].moduleList[n].actionID > 0 && profileList[i].moduleList[n].actionID < 32)//find generics in the first 16 modules
+                    {
+                        tempGenericsList.Add(n);
+                    }
+                    #endregion
                 }
+                #endregion
+
+                List<int> tempCopyList2 = new List<int>(tempGenericsList);
+                genericsList.Add(tempCopyList2);//adds the list of generics for this profile
+
                 activeProfile++;
             }
+
+            //reset the active profile/tab
             activeProfile = 0;
             tabControl1.SelectedTab = tabArray[0];
         }
 
-        private void changeType(int n)
+        private void assignModuleImage(int n)
         {
             if (palette[n] < 10)
             {
@@ -354,11 +369,6 @@ namespace WindowsFormsApplication2
             {
                 btnArray[n].BackgroundImageLayout = ImageLayout.Stretch;
                 btnArray[n].BackgroundImage = Image.FromFile(@"C:\Users\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\joystick.png");
-            }
-            else if (palette[n] < 40)
-            {
-                btnArray[n].BackgroundImageLayout = ImageLayout.Stretch;
-                btnArray[n].BackgroundImage = null;
             }
             else
             {
@@ -413,7 +423,11 @@ namespace WindowsFormsApplication2
         void tabControl1_Selecting(object sender, TabControlCancelEventArgs e)
         {
             TabPage current = (sender as TabControl).SelectedTab;
-            activeProfile = current.TabIndex;
+            try
+            {
+                activeProfile = current.TabIndex;
+            }
+            catch { }
         }
 
         private void serialPort1_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
@@ -439,7 +453,7 @@ namespace WindowsFormsApplication2
 
         private void button2_Click(object sender, EventArgs e)
         {
-            moduleChanged(18, 0);
+            moduleChanged(0, 18);
         }
 
     }//public partial class namespace
