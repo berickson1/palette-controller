@@ -1,0 +1,12 @@
+D:\Julia\Desktop\SimpleSerial\obj\Debug\SimpleSerial.exe
+D:\Julia\Desktop\SimpleSerial\obj\Debug\SimpleSerial.pdb
+D:\Julia\Documents\Visual Studio 2012\Projects\SimpleSerial\obj\Debug\SimpleSerial.exe
+D:\Julia\Documents\Visual Studio 2012\Projects\SimpleSerial\obj\Debug\SimpleSerial.pdb
+D:\Julia\Documents\Visual Studio 2012\Projects\SimpleSerial\bin\Debug\SimpleSerial.exe
+D:\Julia\Documents\Visual Studio 2012\Projects\SimpleSerial\bin\Debug\SimpleSerial.pdb
+D:\Julia\Documents\Visual Studio 2012\Projects\SimpleSerial\obj\Debug\SimpleSerial.csprojResolveAssemblyReference.cache
+D:\Julia\Documents\Visual Studio 2012\Projects\SimpleSerial\obj\Debug\SimpleSerial.Form1.resources
+D:\Julia\Documents\Visual Studio 2012\Projects\SimpleSerial\obj\Debug\SimpleSerial.Properties.Resources.resources
+D:\Julia\Documents\Visual Studio 2012\Projects\SimpleSerial\obj\Debug\SimpleSerial.csproj.GenerateResource.Cache
+C:\Users\Julia\Documents\Visual Studio 2012\Projects\SimpleSerial\obj\Debug\SimpleSerial.exe
+C:\Users\Julia\Documents\Visual Studio 2012\Projects\SimpleSerial\obj\Debug\SimpleSerial.pdb
