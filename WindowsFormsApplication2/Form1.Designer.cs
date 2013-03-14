@@ -105,9 +105,8 @@
             this.lblInfoDescription.AutoSize = true;
             this.lblInfoDescription.Location = new System.Drawing.Point(16, 54);
             this.lblInfoDescription.Name = "lblInfoDescription";
-            this.lblInfoDescription.Size = new System.Drawing.Size(110, 13);
+            this.lblInfoDescription.Size = new System.Drawing.Size(0, 13);
             this.lblInfoDescription.TabIndex = 10;
-            this.lblInfoDescription.Text = "Description goes here";
             // 
             // lblInfoName
             // 
@@ -115,9 +114,8 @@
             this.lblInfoName.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblInfoName.Location = new System.Drawing.Point(13, 18);
             this.lblInfoName.Name = "lblInfoName";
-            this.lblInfoName.Size = new System.Drawing.Size(75, 31);
+            this.lblInfoName.Size = new System.Drawing.Size(0, 31);
             this.lblInfoName.TabIndex = 8;
-            this.lblInfoName.Text = "Type";
             this.lblInfoName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // serialPort1

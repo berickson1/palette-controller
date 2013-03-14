@@ -28,22 +28,24 @@ namespace WindowsFormsApplication2
         System.Windows.Forms.Button[] btnArray = new System.Windows.Forms.Button[16];//used to draw buttons
         System.Windows.Forms.Label[] lblArray = new System.Windows.Forms.Label[16];//used to draw labels
 
-        //TODO: this should be a list
+        //TODO: this should be a list so it's not a fixed size
         System.Windows.Forms.TabPage[] tabArray = new System.Windows.Forms.TabPage[25];//used to draw tabs for profiles
         #endregion
 
         public frmPalette()
         {
-            InitializeComponent();
+            InitializeComponent();//leave this here, C# basics
 
-            SerialConnection();
-            CreateDictionary("Programs.txt");
+            //SerialConnection();//eastablishes serial connection
+            //GetInitialConfig();//send serial message to Brent asking for initial configuration
+
             InitializeConfiguration();
-            tabControl1.Selecting += new TabControlCancelEventHandler(tabControl1_Selecting);
+            
+            CreateDictionary("Programs.txt");//reads dictionary files into program
+            tabControl1.Selecting += new TabControlCancelEventHandler(tabControl1_Selecting);//now when you switch tabs it will react
         }
 
-        #region Threads
-
+        #region Functions
         // Connects to a serial port defined through the current settings
         public void SerialConnection()
         {
@@ -56,9 +58,16 @@ namespace WindowsFormsApplication2
             serialPort1.BaudRate = 57600;
             serialPort1.Open();
         }
-        #endregion
 
-        #region Functions
+        private void GetInitialConfig()
+        {
+            if (!serialPort1.IsOpen) return;
+            byte[] data = new byte[] {
+               0x50
+            };
+            SendSerial(data);
+        }
+
         private void InitializeConfiguration()
         {
             //file containing location and ID of modules
@@ -179,8 +188,11 @@ namespace WindowsFormsApplication2
                         }
                         GenericList.Add(tempProgramID, tempActions);
                     }
+
+                    var tempCopyDict = new Dictionary<int, List<string>>(GenericList);//cppy by value, not reference
+
                     //add to dictionary;
-                    programInfo.Add(tempActionID.ToString(), new ActionInfo(tempActionID, tempName, GenericList));
+                    programInfo.Add(tempActionID.ToString(), new ActionInfo(tempActionID, tempName, tempCopyDict));
                     GenericList.Clear();
                 }
                 else//regular
@@ -231,12 +243,42 @@ namespace WindowsFormsApplication2
                     profileList[i].moduleList[location] = new Module(ID, 0, "");
                 }
             }
-
-            buildPalette();
+            buildButton(location);
         }
         #endregion
 
         #region Helper Functions
+        private void buildButton(int location)
+        {
+            for (int i = 0; i < profileList.Count; i++)
+            {
+                tabArray[i].Controls.Remove(lblArray[location]);
+
+                int xPos = getPositionX(location);
+                int yPos = getPositionY(location);
+
+                // Location of button: 
+                btnArray[location].Left = xPos;
+                btnArray[location].Top = yPos;
+
+                tabArray[i].Controls.Remove(btnArray[location]);
+                tabArray[i].Controls.Add(btnArray[location]); // Let panel hold the Buttons
+
+                // Location of label: 
+                lblArray[location].Left = xPos;
+                lblArray[location].Top = yPos + 100;
+
+                tabArray[i].Controls.Remove(lblArray[location]);
+                tabArray[activeProfile].Controls.Add(lblArray[location]); // Let panel hold the Labels
+
+                assignModuleImage(location);
+
+                btnArray[location].Tag = location;//add location to each button's tag
+                lblArray[location].Text = profileList[activeProfile].moduleList[location].actions;//writes action as text of label
+                btnArray[location].Click += new System.EventHandler(ClickButton);// the Event of click Button
+            }         
+        }
+
         private void buildPalette()
         {
             int size = row * col;
@@ -256,30 +298,23 @@ namespace WindowsFormsApplication2
 
                 //Create imaginary array of buttons & labels for each profile
                 #region Create Array of Buttons & Labels
-                int xPos = 20;
-                int yPos = 20;
+                int xPos, yPos;
 
-                for (int j = 0; j < size; j++)
+                for (int n = 0; n < palette.Count(); n++)
                 {
-                    btnArray[j] = new System.Windows.Forms.Button();
-                    btnArray[j].FlatStyle = FlatStyle.Flat;
-                    btnArray[j].FlatAppearance.BorderSize = 0;
-                    lblArray[j] = new System.Windows.Forms.Label();
-                    lblArray[j].TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-                }
-                #endregion
+                    btnArray[n] = new System.Windows.Forms.Button();
+                    btnArray[n].FlatStyle = FlatStyle.Flat;
+                    btnArray[n].FlatAppearance.BorderSize = 0;
+                    lblArray[n] = new System.Windows.Forms.Label();
+                    lblArray[n].TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 
-                //Add information to buttons & labels
-                #region Draw Buttons & Labels
-                for (int n = 0; n < palette.Count(); n++ )//for each module in the palette
-                {
                     btnArray[n].Width = 100; // Width of button 
                     btnArray[n].Height = 100; // Height of button 
                     lblArray[n].Width = 100;
                     lblArray[n].Height = 20;
 
-                    xPos = getPositionX(n, xPos);
-                    yPos = getPositionY(n, yPos);
+                    xPos = getPositionX(n);
+                    yPos = getPositionY(n);
 
                     // Location of button: 
                     btnArray[n].Left = xPos;
@@ -292,8 +327,6 @@ namespace WindowsFormsApplication2
                     lblArray[n].Top = yPos + 100;
                     // Add label to a Panel: 
                     tabArray[activeProfile].Controls.Add(lblArray[n]); // Let panel hold the Labels
-
-                    xPos = xPos + btnArray[n].Width + 20; // Left of next button 
 
                     //Add information to buttons & labels
                     #region Add Info to Buttons & Labels
@@ -323,59 +356,46 @@ namespace WindowsFormsApplication2
             tabControl1.SelectedTab = tabArray[0];
         }
 
-        private int getPositionY(int n, int yPos)
+        private int getPositionY(int n)
         {
-            if (n >= (3 * row)) // Location of second line of buttons: 
-            {
-                return 440;
-            }
-            else if (n >= (2 * row)) // Location of second line of buttons: 
-            {
-                return 300;
-            }
-            else if (n >= row) // Location of second line of buttons: 
-            {
-                return 160;
-            }
-            else
-            {
-                return 20;
-            }
+            if (n >= (3 * row))  return 440;
+            else if (n >= (2 * row)) return 300;
+            else if (n >= row) return 160;
+            else return 20;
         }
-        private int getPositionX(int n, int xPos)
+        private int getPositionX(int n)
         {
-            if (n == (3 * row) || n == (2 * row) || n == (row)) // Location of second line of buttons: 
-            {
-                return 20;
-            }
-            else
-            {
-                return xPos;
-            }
+            if (n == 1 || n == (3 * row + 1) || n == (2 * row + 1) || n == (row + 1)) return 140;
+            else if (n == 2 || n == (3 * row + 2) || n == (2 * row + 2) || n == (row + 2)) return 260;
+            else if (n == 3 || n == (3 * row + 3) || n == (2 * row + 3) || n == (row + 3)) return 380;
+            else return 20;
         }
 
         private void assignModuleImage(int n)
         {
-            if (palette[n] < 10)
+            for (int i = 0; i < profileList.Count; i++)
             {
-                btnArray[n].BackgroundImageLayout = ImageLayout.Stretch;
-                btnArray[n].BackgroundImage = Image.FromFile(@"C:\Users\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\button.png");
-            }
-            else if (palette[n] < 20)
-            {
-                btnArray[n].BackgroundImageLayout = ImageLayout.Stretch;
-                btnArray[n].BackgroundImage = Image.FromFile(@"C:\Users\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\knob.png");
-            }
-            else if (palette[n] < 30)
-            {
-                btnArray[n].BackgroundImageLayout = ImageLayout.Stretch;
-                btnArray[n].BackgroundImage = Image.FromFile(@"C:\Users\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\joystick.png");
-            }
-            else
-            {
-                btnArray[n].Text = "Not Present";
-                btnArray[n].BackgroundImageLayout = ImageLayout.Stretch;
-                btnArray[n].BackgroundImage = null;
+                if (palette[n] < 10)
+                {
+                    btnArray[n].BackgroundImageLayout = ImageLayout.Stretch;
+                    btnArray[n].BackgroundImage = Image.FromFile(@"C:\Users\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\button.png");
+                }
+                else if (palette[n] < 20)
+                {
+                    btnArray[n].BackgroundImageLayout = ImageLayout.Stretch;
+                    btnArray[n].BackgroundImage = Image.FromFile(@"C:\Users\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\knob.png");
+                }
+                else if (palette[n] < 30)
+                {
+                    btnArray[n].BackgroundImageLayout = ImageLayout.Stretch;
+                    btnArray[n].BackgroundImage = Image.FromFile(@"C:\Users\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\Images\joystick.png");
+                }
+                else
+                {
+                    btnArray[n].Text = "Not Present";
+                    btnArray[n].BackgroundImageLayout = ImageLayout.Stretch;
+                    btnArray[n].BackgroundImage = null;
+                }
             }
         }
         

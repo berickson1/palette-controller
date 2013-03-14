@@ -14,6 +14,7 @@ namespace WindowsFormsApplication2
         public List<string> action = new List<string>();
         public Dictionary<int, List<string>> GenericList;
 
+        //Object for regular or custom action
         public ActionInfo(int aID, string nm, int pID, List<string> ac)
         {
             actionID = aID;
@@ -23,6 +24,7 @@ namespace WindowsFormsApplication2
             action = ac;
         }
 
+        //Object for generic action
         public ActionInfo(int aID, string nm, Dictionary<int, List<string>> programActionDictionary)
         {
             actionID = aID;
