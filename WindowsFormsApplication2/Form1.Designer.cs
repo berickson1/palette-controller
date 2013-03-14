@@ -32,12 +32,12 @@
             this.pnlButtons = new System.Windows.Forms.Panel();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.pnlInfo = new System.Windows.Forms.Panel();
+            this.txtData = new System.Windows.Forms.TextBox();
+            this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.lblInfoDescription = new System.Windows.Forms.Label();
             this.lblInfoName = new System.Windows.Forms.Label();
-            this.txtData = new System.Windows.Forms.TextBox();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
-            this.button2 = new System.Windows.Forms.Button();
             this.pnlButtons.SuspendLayout();
             this.pnlInfo.SuspendLayout();
             this.SuspendLayout();
@@ -60,15 +60,35 @@
             // 
             // pnlInfo
             // 
+            this.pnlInfo.Controls.Add(this.txtData);
             this.pnlInfo.Controls.Add(this.button2);
             this.pnlInfo.Controls.Add(this.button1);
             this.pnlInfo.Controls.Add(this.lblInfoDescription);
             this.pnlInfo.Controls.Add(this.lblInfoName);
-            this.pnlInfo.Controls.Add(this.txtData);
             this.pnlInfo.Location = new System.Drawing.Point(543, 12);
             this.pnlInfo.Name = "pnlInfo";
             this.pnlInfo.Size = new System.Drawing.Size(235, 623);
             this.pnlInfo.TabIndex = 6;
+            // 
+            // txtData
+            // 
+            this.txtData.Location = new System.Drawing.Point(19, 311);
+            this.txtData.Multiline = true;
+            this.txtData.Name = "txtData";
+            this.txtData.ReadOnly = true;
+            this.txtData.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtData.Size = new System.Drawing.Size(186, 164);
+            this.txtData.TabIndex = 15;
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(19, 253);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(186, 23);
+            this.button2.TabIndex = 12;
+            this.button2.Text = "Test Remove Module";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // button1
             // 
@@ -100,25 +120,9 @@
             this.lblInfoName.Text = "Type";
             this.lblInfoName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // txtData
+            // serialPort1
             // 
-            this.txtData.Location = new System.Drawing.Point(19, 329);
-            this.txtData.Multiline = true;
-            this.txtData.Name = "txtData";
-            this.txtData.ReadOnly = true;
-            this.txtData.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtData.Size = new System.Drawing.Size(186, 225);
-            this.txtData.TabIndex = 4;
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(19, 253);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(186, 23);
-            this.button2.TabIndex = 12;
-            this.button2.Text = "Test Remove Module";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialPort1_DataReceived);
             // 
             // frmPalette
             // 
@@ -139,13 +143,13 @@
 
         private System.Windows.Forms.Panel pnlButtons;
         private System.Windows.Forms.Panel pnlInfo;
-        private System.Windows.Forms.TextBox txtData;
         private System.Windows.Forms.Label lblInfoName;
         private System.Windows.Forms.Label lblInfoDescription;
         private System.Windows.Forms.TabControl tabControl1;
         private System.IO.Ports.SerialPort serialPort1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.TextBox txtData;
 
     }
 }

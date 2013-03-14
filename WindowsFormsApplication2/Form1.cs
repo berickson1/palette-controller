@@ -35,43 +35,26 @@ namespace WindowsFormsApplication2
         public frmPalette()
         {
             InitializeComponent();
-            tabControl1.Selecting += new TabControlCancelEventHandler(tabControl1_Selecting);
 
+            SerialConnection();
             CreateDictionary("Programs.txt");
             InitializeConfiguration();
-            //Calls for functions
+            tabControl1.Selecting += new TabControlCancelEventHandler(tabControl1_Selecting);
         }
 
         #region Threads
-        private void Serial_Connection()
+
+        // Connects to a serial port defined through the current settings
+        public void SerialConnection()
         {
-            serialPort1.PortName = "COM7";
+            // Closing serial port if it is open
+            if (serialPort1 != null && serialPort1.IsOpen)
+                serialPort1.Close();
+
+            // Setting serial port settings
+            serialPort1.PortName = "COM3";
             serialPort1.BaudRate = 57600;
-            
-            try
-            {
-                while(true)
-                {
-                    serialPort1.Open();
-                }
-
-            }
-            catch(ThreadAbortException ex){}
-            catch(Exception ex)
-            {
-                MessageBox.Show("Error: Serial communication cannot be established. Original error: " + ex.Message, TITLENAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-            /*byte[] c = new byte[] {
-               0x01,
-               0x00,
-               0x00,
-               0x02,
-               0x37,
-               0x30,
-               0x04
-            };
-            serialPort1.Write(c, 0, c.Length);*/
+            serialPort1.Open();
         }
         #endregion
 
@@ -295,21 +278,8 @@ namespace WindowsFormsApplication2
                     lblArray[n].Width = 100;
                     lblArray[n].Height = 20;
 
-                    if (n == row) // Location of second line of buttons: 
-                    {
-                        xPos = 20;
-                        yPos = 160;
-                    }
-                    else if (n == (2 * row)) // Location of second line of buttons: 
-                    {
-                        xPos = 20;
-                        yPos = 300;
-                    }
-                    else if (n == (3 * row)) // Location of second line of buttons: 
-                    {
-                        xPos = 20;
-                        yPos = 440;
-                    }
+                    xPos = getPositionX(n, xPos);
+                    yPos = getPositionY(n, yPos);
 
                     // Location of button: 
                     btnArray[n].Left = xPos;
@@ -351,6 +321,37 @@ namespace WindowsFormsApplication2
             //reset the active profile/tab
             activeProfile = 0;
             tabControl1.SelectedTab = tabArray[0];
+        }
+
+        private int getPositionY(int n, int yPos)
+        {
+            if (n >= (3 * row)) // Location of second line of buttons: 
+            {
+                return 440;
+            }
+            else if (n >= (2 * row)) // Location of second line of buttons: 
+            {
+                return 300;
+            }
+            else if (n >= row) // Location of second line of buttons: 
+            {
+                return 160;
+            }
+            else
+            {
+                return 20;
+            }
+        }
+        private int getPositionX(int n, int xPos)
+        {
+            if (n == (3 * row) || n == (2 * row) || n == (row)) // Location of second line of buttons: 
+            {
+                return 20;
+            }
+            else
+            {
+                return xPos;
+            }
         }
 
         private void assignModuleImage(int n)
@@ -395,7 +396,8 @@ namespace WindowsFormsApplication2
 
         private void SendSerial(byte[] bytes)
         {
-            serialPort1.Write(bytes, 0, bytes.Length);
+            if (serialPort1.IsOpen)
+                serialPort1.Write(bytes, 0, bytes.Length);
         }
 
         static byte[] GetBytes(string str)
@@ -417,6 +419,12 @@ namespace WindowsFormsApplication2
             string something = System.IO.File.ReadAllText(@"C:\Users\Julia\Documents\Visual Studio 2012\Projects\WindowsFormsApplication2\" + name);
             return something;
         }
+
+        private void DisplayText(object sender, EventArgs e)
+        {
+            txtData.AppendText(RxString);
+            txtData.AppendText("\n");
+        }
         #endregion
 
         #region Control Event Code
@@ -432,19 +440,50 @@ namespace WindowsFormsApplication2
 
         private void serialPort1_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
-            RxString = serialPort1.ReadExisting();
-            //this.Invoke(new EventHandler(DisplayText));
-            txtData.AppendText(RxString);
+            int numBytes = serialPort1.BytesToRead;
+            int[] byteArray = new int[numBytes];
+            string[] stringArray = new string[numBytes];
+            for (int i =0; i<numBytes;i++)
+            {
+                byteArray [i] = serialPort1.ReadByte();
+                stringArray [i] = byteArray[i].ToString("X");
+                RxString = stringArray[i];
+                this.Invoke(new EventHandler(DisplayText));
+            }
+            AnalyseIncomingSerial(stringArray);
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        private void AnalyseIncomingSerial (string [] strArray)
         {
-            if (serialPort1.IsOpen) serialPort1.Close();
-        }
-        #endregion
+            if (Convert.ToInt32(strArray[0]) == 70)//current location & IDs
+            {
 
+            }
+            else if (Convert.ToInt32(strArray[0]) == 80)//profile & mappings
+            {
+
+            }
+            else if (Convert.ToInt32(strArray[0]) == 30)//hardware change
+            {
+
+            }
+            else if (Convert.ToInt32(strArray[0]) == 40)//profile switch
+            {
+
+            }
+            else if (Convert.ToInt32(strArray[0]) == 10)//wassup
+            {
+
+            }
+            else
+            {
+
+            }
+        }
+        
         private void button1_Click(object sender, EventArgs e)
         {
+            if (!serialPort1.IsOpen) return;
             byte[] data = new byte[] {
                0x50
             };
@@ -455,6 +494,12 @@ namespace WindowsFormsApplication2
         {
             moduleChanged(0, 18);
         }
+
+        private void frmPalette_FormClosing(object sender, EventArgs e)
+        {
+            if (serialPort1.IsOpen) serialPort1.Close();
+        }
+        #endregion
 
     }//public partial class namespace
 } //namespace
