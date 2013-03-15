@@ -1,4 +1,20 @@
+32
+Zoom
+20
+Cntrl+,Cntrl-
+
+33
+Zoom In
+20
+Cntrl+
+
+34
+Zoom In
+20
+Cntrl-
+
 1
+<<<<<<< HEAD
 Windows System
 
 2
@@ -18,3 +34,14 @@ AutoCAD
 
 40
 Audacity
+=======
+Zoom
+20
+Cntrl+,Cntrl-
+30
+Cntrl Scroll Up,Cntrl Scroll Down
+40
+Up,Down
+END
+
+>>>>>>> 9c13166c24e32831c65013a1331e1b96bbce59a9

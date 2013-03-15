@@ -18,10 +18,26 @@ namespace WindowsFormsApplication2
             actionID = aID;
             modifiers = mod;
             actions = a;
+<<<<<<< HEAD
 
             if (ID < 10) type = "Button";
             else if (ID < 20) type = "Knob";
             else if (ID < 30) type = "Slider";
+=======
+            
+            if (ID < 10)
+            {
+                type = "Button";
+            }
+            else if (ID < 20)
+            {
+                type = "Knob";
+            }
+            else if (ID < 30)
+            {
+                type = "Slider";
+            }
+>>>>>>> 9c13166c24e32831c65013a1331e1b96bbce59a9
         }
         public Module(int id, int aid, string a)
         {
@@ -29,9 +45,25 @@ namespace WindowsFormsApplication2
             actionID = aid;
             actions = a;
 
+<<<<<<< HEAD
             if (ID < 10) type = "Button";
             else if (ID < 20) type = "Knob";
             else if (ID < 30) type = "Slider";
+=======
+            if (ID < 10)
+            {
+                type = "Button";
+            }
+            else if (ID < 20)
+            {
+                type = "Knob";
+            }
+            else if (ID < 30)
+            {
+                type = "Slider";
+            }
+
+>>>>>>> 9c13166c24e32831c65013a1331e1b96bbce59a9
         }
         //other functions
     }

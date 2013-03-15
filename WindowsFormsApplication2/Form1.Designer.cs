@@ -62,8 +62,11 @@
             // 
             // pnlInfo
             // 
+<<<<<<< HEAD
             this.pnlInfo.Controls.Add(this.cmbActions);
             this.pnlInfo.Controls.Add(this.cmbPrograms);
+=======
+>>>>>>> 9c13166c24e32831c65013a1331e1b96bbce59a9
             this.pnlInfo.Controls.Add(this.txtData);
             this.pnlInfo.Controls.Add(this.button2);
             this.pnlInfo.Controls.Add(this.button1);
@@ -93,9 +96,15 @@
             this.button2.Text = "Test Remove Module";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
+<<<<<<< HEAD
             // 
             // button1
             // 
+=======
+            // 
+            // button1
+            // 
+>>>>>>> 9c13166c24e32831c65013a1331e1b96bbce59a9
             this.button1.Location = new System.Drawing.Point(19, 282);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(186, 23);
@@ -125,6 +134,7 @@
             // serialPort1
             // 
             this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialPort1_DataReceived);
+<<<<<<< HEAD
             // 
             // cmbPrograms
             // 
@@ -142,6 +152,8 @@
             this.cmbActions.Name = "cmbActions";
             this.cmbActions.Size = new System.Drawing.Size(186, 21);
             this.cmbActions.TabIndex = 17;
+=======
+>>>>>>> 9c13166c24e32831c65013a1331e1b96bbce59a9
             // 
             // frmPalette
             // 
@@ -169,8 +181,11 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.TextBox txtData;
+<<<<<<< HEAD
         private System.Windows.Forms.ComboBox cmbPrograms;
         private System.Windows.Forms.ComboBox cmbActions;
+=======
+>>>>>>> 9c13166c24e32831c65013a1331e1b96bbce59a9
 
     }
 }
