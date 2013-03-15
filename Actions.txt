@@ -13,6 +13,41 @@ Zoom Out
 20
 Cntrl-
 
+35
+Rectangle Select
+20
+R
+
+36
+Ellipse Select
+20
+E
+
+37
+Scissors
+20
+I
+
+38
+Colour Picker
+20
+O
+
+39
+Crop and Resize
+20
+Shift C
+
+40
+Rotate
+20
+Shift R
+
+41
+Eraser
+20
+Shift E
+
 1
 Zoom
 20
