@@ -1,12 +1,20 @@
 1
-Photoshop Pan
-Null
-Horizontal,Vertical
-Horizontal,Vertical
-Exists
+Windows System
+
 2
-Photoshop Zoom
-Null
-Exists
-Exists
-Null
+Windows Media Player
+
+3
+Microsoft Office
+
+10
+Chrome Browser
+
+20
+GIMP
+
+30
+AutoCAD
+
+40
+Audacity

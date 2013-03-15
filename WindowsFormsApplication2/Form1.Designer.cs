@@ -32,11 +32,14 @@
             this.pnlButtons = new System.Windows.Forms.Panel();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.pnlInfo = new System.Windows.Forms.Panel();
-            this.btnTest = new System.Windows.Forms.Button();
+            this.txtData = new System.Windows.Forms.TextBox();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.lblInfoDescription = new System.Windows.Forms.Label();
             this.lblInfoName = new System.Windows.Forms.Label();
-            this.txtData = new System.Windows.Forms.TextBox();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
+            this.cmbPrograms = new System.Windows.Forms.ComboBox();
+            this.cmbActions = new System.Windows.Forms.ComboBox();
             this.pnlButtons.SuspendLayout();
             this.pnlInfo.SuspendLayout();
             this.SuspendLayout();
@@ -59,33 +62,55 @@
             // 
             // pnlInfo
             // 
-            this.pnlInfo.Controls.Add(this.btnTest);
+            this.pnlInfo.Controls.Add(this.cmbActions);
+            this.pnlInfo.Controls.Add(this.cmbPrograms);
+            this.pnlInfo.Controls.Add(this.txtData);
+            this.pnlInfo.Controls.Add(this.button2);
+            this.pnlInfo.Controls.Add(this.button1);
             this.pnlInfo.Controls.Add(this.lblInfoDescription);
             this.pnlInfo.Controls.Add(this.lblInfoName);
-            this.pnlInfo.Controls.Add(this.txtData);
             this.pnlInfo.Location = new System.Drawing.Point(543, 12);
             this.pnlInfo.Name = "pnlInfo";
             this.pnlInfo.Size = new System.Drawing.Size(235, 623);
             this.pnlInfo.TabIndex = 6;
             // 
-            // btnTest
+            // txtData
             // 
-            this.btnTest.Location = new System.Drawing.Point(19, 578);
-            this.btnTest.Name = "btnTest";
-            this.btnTest.Size = new System.Drawing.Size(186, 31);
-            this.btnTest.TabIndex = 7;
-            this.btnTest.Text = "Testing";
-            this.btnTest.UseVisualStyleBackColor = true;
-            this.btnTest.Click += new System.EventHandler(this.btnTest_Click);
+            this.txtData.Location = new System.Drawing.Point(19, 311);
+            this.txtData.Multiline = true;
+            this.txtData.Name = "txtData";
+            this.txtData.ReadOnly = true;
+            this.txtData.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtData.Size = new System.Drawing.Size(186, 164);
+            this.txtData.TabIndex = 15;
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(19, 253);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(186, 23);
+            this.button2.TabIndex = 12;
+            this.button2.Text = "Test Remove Module";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(19, 282);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(186, 23);
+            this.button1.TabIndex = 11;
+            this.button1.Text = "Test Serial";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // lblInfoDescription
             // 
             this.lblInfoDescription.AutoSize = true;
             this.lblInfoDescription.Location = new System.Drawing.Point(16, 54);
             this.lblInfoDescription.Name = "lblInfoDescription";
-            this.lblInfoDescription.Size = new System.Drawing.Size(110, 13);
+            this.lblInfoDescription.Size = new System.Drawing.Size(0, 13);
             this.lblInfoDescription.TabIndex = 10;
-            this.lblInfoDescription.Text = "Description goes here";
             // 
             // lblInfoName
             // 
@@ -93,23 +118,34 @@
             this.lblInfoName.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblInfoName.Location = new System.Drawing.Point(13, 18);
             this.lblInfoName.Name = "lblInfoName";
-            this.lblInfoName.Size = new System.Drawing.Size(75, 31);
+            this.lblInfoName.Size = new System.Drawing.Size(0, 31);
             this.lblInfoName.TabIndex = 8;
-            this.lblInfoName.Text = "Type";
             this.lblInfoName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // txtData
+            // serialPort1
             // 
-            this.txtData.Location = new System.Drawing.Point(19, 329);
-            this.txtData.Multiline = true;
-            this.txtData.Name = "txtData";
-            this.txtData.ReadOnly = true;
-            this.txtData.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtData.Size = new System.Drawing.Size(186, 225);
-            this.txtData.TabIndex = 4;
+            this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialPort1_DataReceived);
+            // 
+            // cmbPrograms
+            // 
+            this.cmbPrograms.FormattingEnabled = true;
+            this.cmbPrograms.Location = new System.Drawing.Point(19, 77);
+            this.cmbPrograms.Name = "cmbPrograms";
+            this.cmbPrograms.Size = new System.Drawing.Size(186, 21);
+            this.cmbPrograms.TabIndex = 16;
+            this.cmbPrograms.SelectionChangeCommitted += new System.EventHandler(this.cmbPrograms_SelectionChangeCommitted);
+            // 
+            // cmbActions
+            // 
+            this.cmbActions.FormattingEnabled = true;
+            this.cmbActions.Location = new System.Drawing.Point(19, 104);
+            this.cmbActions.Name = "cmbActions";
+            this.cmbActions.Size = new System.Drawing.Size(186, 21);
+            this.cmbActions.TabIndex = 17;
             // 
             // frmPalette
             // 
+            this.BackColor = System.Drawing.Color.Gray;
             this.ClientSize = new System.Drawing.Size(799, 640);
             this.Controls.Add(this.pnlInfo);
             this.Controls.Add(this.pnlButtons);
@@ -126,12 +162,15 @@
 
         private System.Windows.Forms.Panel pnlButtons;
         private System.Windows.Forms.Panel pnlInfo;
-        private System.Windows.Forms.TextBox txtData;
         private System.Windows.Forms.Label lblInfoName;
         private System.Windows.Forms.Label lblInfoDescription;
-        private System.Windows.Forms.Button btnTest;
         private System.Windows.Forms.TabControl tabControl1;
         private System.IO.Ports.SerialPort serialPort1;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.TextBox txtData;
+        private System.Windows.Forms.ComboBox cmbPrograms;
+        private System.Windows.Forms.ComboBox cmbActions;
 
     }
 }

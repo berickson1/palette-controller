@@ -18,45 +18,20 @@ namespace WindowsFormsApplication2
             actionID = aID;
             modifiers = mod;
             actions = a;
-            
-            if (ID < 10)
-            {
-                type = "Button";
-            }
-            else if (ID < 20)
-            {
-                type = "Encoder";
-            }
-            else if (ID < 30)
-            {
-                type = "Pot";
-            }
-            else if (ID < 40)
-            {
-                type = "Joystick";
-            }
+
+            if (ID < 10) type = "Button";
+            else if (ID < 20) type = "Knob";
+            else if (ID < 30) type = "Slider";
         }
-        public Module(int id, string a)
+        public Module(int id, int aid, string a)
         {
             ID = id;
+            actionID = aid;
             actions = a;
 
-            if (ID < 10)
-            {
-                type = "Button";
-            }
-            else if (ID < 20)
-            {
-                type = "Encoder";
-            }
-            else if (ID < 30)
-            {
-                type = "Pot";
-            }
-            else if (ID < 40)
-            {
-                type = "Joystick";
-            }
+            if (ID < 10) type = "Button";
+            else if (ID < 20) type = "Knob";
+            else if (ID < 30) type = "Slider";
         }
         //other functions
     }

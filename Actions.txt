@@ -1,0 +1,25 @@
+32
+Zoom
+20
+Cntrl+,Cntrl-
+
+33
+Zoom In
+20
+Cntrl+
+
+34
+Zoom Out
+20
+Cntrl-
+
+1
+Zoom
+20
+Cntrl+,Cntrl-
+30
+Cntrl Scroll Up,Cntrl Scroll Down
+40
+Up,Down
+END
+
